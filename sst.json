@@ -1,0 +1,8 @@
+{
+  "lint": true,
+  "main": "infra/index.ts",
+  "name": "hello-app",
+  "region": "eu-west-2",
+  "stage": "dev",
+  "typeCheck": true
+}
