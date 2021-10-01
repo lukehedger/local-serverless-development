@@ -1,14 +1,28 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyHandlerV2 } from "aws-lambda";
+import { APIGatewayProxyEventV2, Handler } from "aws-lambda";
 import {
   EventBridgeClient,
   PutEventsCommand,
 } from "@aws-sdk/client-eventbridge";
 
+type HandlerResponseHeaders = {
+  "Content-Type": string;
+};
+
+export type HandlerResponse = {
+  body: string;
+  headers: HandlerResponseHeaders;
+  statusCode: number;
+};
+
 const eventbridge = new EventBridgeClient({ region: process.env.AWS_REGION });
 
-export const handler: APIGatewayProxyHandlerV2 = async (
+export function sayHello(helloFrom = "anonymous", receivedAt: string): string {
+  return `Hello, ${helloFrom}! Your request was received at ${receivedAt}.`;
+}
+
+export const handler: Handler = async (
   event: APIGatewayProxyEventV2
-) => {
+): Promise<HandlerResponse> => {
   const helloFrom = event.pathParameters?.helloFrom;
 
   const putEventsCommand = new PutEventsCommand({
@@ -28,7 +42,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (
     statusCode: 200,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      hello: `Hello, ${helloFrom}! Your request was received at ${event.requestContext.time}.`,
+      hello: sayHello(helloFrom, event.requestContext.time),
     }),
   };
 };
